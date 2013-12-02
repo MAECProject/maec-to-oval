@@ -21,7 +21,7 @@ class cybox_oval_mappings(object):
         #CybOX Object Type to OVAL object mappings
         self.object_mappings = {'WinRegistryKeyObj:WindowsRegistryKeyObjectType':'registry_object', 'FileObj:FileObjectType':'file_object'}
         #CybOX FileObject to OVAL file_object mappings (CybOX element name : {OVAL element name, OVAL element datatype})
-        self.file_object_mappings = {'File_Name':{'name':'filename','datatype':'string'},'File_Path':{'name':'path','datatype':'string'}}
+        self.file_object_mappings = {'File_Path':{'name':'path','datatype':'string'},'Full_Path':{'name':'filepath','datatype':'string'}}
         #CybOX FileObject to OVAL file_state mappings
         self.file_state_mappings = {'Size_In_Bytes':{'name':'size','datatype':'int'},'Accessed_Time':{'name':'a_time','datatype':'int'},\
                                     'Modified_Time':{'name':'m_time','datatype':'int'},'Created_Time':{'name':'c_time','datatype':'int'}}
@@ -34,16 +34,15 @@ class cybox_oval_mappings(object):
     def create_oval(self, cybox_defined_object, reference):
         oval_entities = {}
         oval_states = []
-        object_type = cybox_defined_object.anyAttributes_.get('{http://www.w3.org/2001/XMLSchema-instance}type')
-
+        object_type = cybox_defined_object._XSI_NS + ':' + cybox_defined_object._XSI_TYPE
         if object_type in self.object_mappings.keys():
             oval_object = self.create_oval_object(object_type, cybox_defined_object)
             if oval_object is not None:
                 if object_type == 'WinRegistryKeyObj:WindowsRegistryKeyObjectType':
                     self.process_registry_values(cybox_defined_object, oval_object, oval_states)
                 else:
-                   state = self.create_oval_state(object_type, cybox_defined_object)
-                   if state is not None:
+                    state = self.create_oval_state(object_type, cybox_defined_object)
+                    if state is not None:
                         oval_states.append(self.create_oval_state(object_type, cybox_defined_object))
                 oval_test = self.create_oval_test(object_type, oval_object, oval_entities, oval_states, reference)
                 oval_entities['test'] = oval_test
@@ -58,20 +57,31 @@ class cybox_oval_mappings(object):
     def create_oval_object(self, object_type, cybox_defined_object):
         oval_object_type = self.object_mappings.get(object_type)
         oval_object_mappings = self.object_mappings.get(object_type) + '_mappings'
-        oval_object = getattr(oval,oval_object_type)(version = 1, id = self.generate_obj_id())
-        for element, value in vars(cybox_defined_object).items():
+        print oval_object_type
+        oval_object = getattr(oval,oval_object_type)()
+        
+        oval_object.set_id(self.generate_obj_id())
+        oval_object.set_version(1)
+        
+        object_fields = cybox_defined_object._fields
+        
+        if "Full_Path" in object_fields and object_fields["Full_Path"] is not None:
+            del object_fields["File_Name"]
+            del object_fields["File_Path"]
+        
+        for element, value in object_fields.items():
             if value is not None:
                 if element in getattr(getattr(self,oval_object_mappings),'keys')():
                     element_dictionary = getattr(getattr(self,oval_object_mappings),'get')(element)
                     element_name = element_dictionary.get('name')
                     element_datatype = element_dictionary.get('datatype')
                     method = 'set_' + element_name
-                    getattr(oval_object,method)(oval.EntityBaseType(datatype = element_datatype, operation = self.operator_condition_mappings.get(value.get_condition()), valueOf_=value.get_valueOf_()))
+                    getattr(oval_object,method)(oval.EntityBaseType(datatype = element_datatype, operation = self.operator_condition_mappings.get(value), valueOf_=value))
         
         #Do some basic object sanity checking for certain objects
         if object_type == 'WinRegistryKeyObj:WindowsRegistryKeyObjectType' and (oval_object.hive is None or oval_object.key is None):
             return None
-        elif object_type == 'FileObj:FileObjectType' and (oval_object.path is None or oval_object.filename is None):
+        elif object_type == 'FileObj:FileObjectType' and (oval_object.filepath is None and (oval_object.path is None or oval_object.filename is None)):
             return None
         return oval_object
 
@@ -80,14 +90,19 @@ class cybox_oval_mappings(object):
         oval_state_type = self.object_mappings.get(object_type).split('_')[0] + '_state'
         oval_state_mappings = oval_state_type + '_mappings'
         oval_state = getattr(oval,oval_state_type)(version = 1, id = self.generate_ste_id())
-        for element, value in vars(cybox_defined_object).items():
+        
+        oval_state.set_id(self.generate_ste_id())
+        
+        object_fields = cybox_defined_object._fields
+            
+        for element, value in object_fields.items():
             if value is not None:
                 if element in getattr(getattr(self,oval_state_mappings),'keys')():
                     element_dictionary = getattr(getattr(self,oval_state_mappings),'get')(element)
                     element_name = element_dictionary.get('name')
                     element_datatype = element_dictionary.get('datatype')
                     method = 'set_' + element_name
-                    getattr(oval_state,method)(oval.EntityBaseType(datatype = element_datatype, operation = self.operator_condition_mappings.get(value.get_condition()), valueOf_=value.get_valueOf_()))
+                    getattr(oval_state,method)(oval.EntityBaseType(datatype = element_datatype, operation = self.operator_condition_mappings.get(value), valueOf_=value.value))
         if oval_state.hasContent_():
             return oval_state
 
@@ -97,6 +112,7 @@ class cybox_oval_mappings(object):
         #Create the test
         comment = 'OVAL Test created from MAEC Action ' + reference
         oval_test = getattr(oval,oval_test_type)(id = self.generate_test_id(), check = 'at least one', version=1.0, comment = comment)
+        oval_test.set_id(self.generate_test_id())
         oval_test.set_object(oval.ObjectRefType(object_ref = oval_object.get_id()))
         if len(oval_states) > 0:
             for state in oval_states:
@@ -107,26 +123,27 @@ class cybox_oval_mappings(object):
     #Handle any Values inside a Registry object 
     def process_registry_values(self, cybox_defined_object, oval_object, oval_states):
         #Special registry Values handling
-        if cybox_defined_object.Values is not None:
+        if cybox_defined_object.values is not None:
             name_set = False
-            for reg_value in cybox_defined_object.Values.Value:
+            for reg_value in cybox_defined_object.values:
                 oval_state = oval.registry_state(version = 1, id = self.generate_ste_id())
-                for element, value in vars(reg_value).items():
+                
+                for element, value in reg_value._fields.items():
                     if value is not None:
                         #Corner case for handling multiple name/value pairs in the OVAL object
-                        if len(cybox_defined_object.Values.Value) == 1 and not name_set:
+                        if len(cybox_defined_object.values) == 1 and not name_set:
                             if element in self.registry_object_mappings.keys():
                                 oval_element = self.registry_object_mappings.get(element)
                                 method = 'set_' + oval_element.get('name')
-                                getattr(oval_object,method)(oval.EntityBaseType(datatype = 'string', operation = self.operator_condition_mappings.get(value.get_condition()), valueOf_=value.get_valueOf_()))
+                                getattr(oval_object,method)(oval.EntityBaseType(datatype = 'string', operation = self.operator_condition_mappings.get(value), valueOf_=value.value))
                                 name_set = True
-                        elif len(cybox_defined_object.Values.Value) > 1 and not name_set:
+                        elif len(cybox_defined_object.values) > 1 and not name_set:
                             oval_object.set_name(oval.EntityBaseType(datatype = 'string', operation = 'pattern match', valueOf_='.*'))
                             name_set = True
                         if element in self.registry_state_mappings.keys():
                             oval_element = self.registry_state_mappings.get(element)
                             method = 'set_' + oval_element.get('name')
-                            getattr(oval_state,method)(oval.EntityBaseType(datatype = 'string', operation = self.operator_condition_mappings.get(value.get_condition()), valueOf_=value.get_valueOf_()))
+                            getattr(oval_state,method)(oval.EntityBaseType(datatype = 'string', operation = self.operator_condition_mappings.get(value), valueOf_=value.value))
                 if oval_state.hasContent_():
                     oval_states.append(oval_state)
 

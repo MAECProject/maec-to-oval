@@ -12,7 +12,7 @@ def usage():
     
 USAGE_TEXT = """
 MAEC --> OVAL XML Converter Utility
-v0.92 BETA // Compatible with MAEC v2.1/CybOX 1.0 draft and OVAL 5.7
+v0.93 BETA // Compatible with MAEC v4.0.1/CybOX 2.0.1 draft and OVAL 5.7
 
 Usage: python maec_to_oval.py <flags> -i <cybox xml file> -o <oval xml file>
 

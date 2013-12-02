@@ -2,7 +2,7 @@
 
       MAEC XML -> OVAL XML Converter Script
 
- Copyright (c) 2012 - The MITRE Corporation
+ Copyright (c) 2012, 2013 - The MITRE Corporation
 
 ****************************************************
 
@@ -16,19 +16,28 @@ For more information, please refer to the terms.txt file.
 #MAEC XML --> OVAL XML Generation Script                        #
 #Generates OVAL 5.7 definitions/tests/objects from MAEC XML     #
 #                                                               #
-#Compatible with content produced using MAEC v2.1/CybOX v1.0    #
+#Compatible with content produced using MAEC v4.0.1/CybOX 2.0.1 #
 #v0.92 BETA - extracts files and registry keys                  #
-#08/30/2012                                                     #
+#11/27/2013                                                     #
 #                                                               #
 #################################################################
 # MAEC - http://maec.mitre.org #                                #
 # CybOX - http://cybox.mitre.org  #                             #
 # OVAL - http://oval.mitre.org  #                               #
 #################################################################
+
 --------------------------------------------------------------------------------
 --Installation Notes------------------------------------------------------------
 
-Simply extract all files from the archive into your directory of choice. No external modules should be required. This script was created using Python 2.7.x, and so may not be compatible with 3.0.x.
+This software depends on the python-cybox (v2.0.1) and python-maec (v4.0.1)
+libraries:
+
+python-cybox: https://pypi.python.org/pypi/cybox/2.0.1.1
+python-maec:  https://pypi.python.org/pypi/maec
+
+This script was created using Python 2.7.x, and so may not be compatible with 3.0.x.
+
+
 --------------------------------------------------------------------------------
 --Methodology-------------------------------------------------------------------
 This script is still a POC, and supports the extraction of registry keys and files
@@ -58,17 +67,16 @@ object. E.g. the following action would be converted:
 
 This is all done in the Windows context and thus uses the corresponding OVAL 
 constructs.
+
 --------------------------------------------------------------------------------
 --Included Files----------------------------------------------------------------
 README: this file.
 maec_to_oval.py: the MAEC XML to OVAL XML Python driver.
 cybox_to_oval_processor.py: the main MAEC XML to OVAL XML converter class.
 maec_oval_mappings.py: the CybOX to OVAL mappings class.
-maec_2_1.py: the MAEC v2.1 Python bindings.
-mmdef_1_2.py: the MMDEF v1.2 Python bindings.
-/cybox: the CybOX Python bindings used by the script.
 oval57.py: the OVAL 5.7 Python bindings used by the script.
 terms.txt: the terms of usage for this script.
+
 --------------------------------------------------------------------------------
 --Usage Notes-------------------------------------------------------------------
 

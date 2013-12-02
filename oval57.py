@@ -13393,9 +13393,9 @@ class file_object(ObjectType):
             self.path.export(outfile, level, 'win-def:', name_='path')
         if self.filename is not None:
             self.filename.export(outfile, level, 'win-def:', name_='filename')
-        else:
+        '''else:
           showIndent(outfile, level)
-          outfile.write('<%sfilename xsi:nil="true"/>\n' % ('win-def:'))
+          outfile.write('<%sfilename xsi:nil="true"/>\n' % ('win-def:'))'''
     def hasContent_(self):
         if (
             self.set is not None or

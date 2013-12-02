@@ -1,15 +1,13 @@
 #MAEC -> OVAL Translator
 #v0.92 BETA
 #Processor Class
-import cybox.cybox_1_0 as cybox #bindings
-import cybox.common_types_1_0 as common #bindings
 import oval57 as oval #bindings
-import maec_2_1 as maec #bindings
 import cybox_oval_mappings
 import sys
 import os
 import traceback
 import datetime
+from maec.package.package import Package
 
 class maec_to_oval_processor(object):
     def __init__(self, infilename, outfilename, verbose_mode, stat_mode):
@@ -21,7 +19,7 @@ class maec_to_oval_processor(object):
         self.oval_states = oval.StatesType()
         self.ovaldefroot = oval.oval_definitions()
         self.mappings = cybox_oval_mappings.cybox_oval_mappings('maec_to_oval')
-        self.supported_action_types = ['Create', 'Modify']
+        self.supported_action_types = ['create', 'modify']
         self.metadata = oval.MetadataType(title = 'Object check', description = 'Existence check for object(s) extracted from MAEC Action')
         self.infilename = infilename
         self.outfilename = outfilename
@@ -31,8 +29,9 @@ class maec_to_oval_processor(object):
     #Process an associated object and create the corresponding OVAL
     def process_associated_object(self, associated_object, action_id):
         #Only process 'affected' objects (those that were manipulated/instantiated as a result of the action)
-        if associated_object.association_type is not None and associated_object.association_type == 'Affected':
-            oval_entities = self.mappings.create_oval(associated_object.Defined_Object, action_id)
+        if associated_object.association_type is not None and associated_object.association_type.value in ['input', 'output', 'side-effect']:
+            
+            oval_entities = self.mappings.create_oval(associated_object._properties, action_id)
             if oval_entities is not None:
                 #Create a new OVAL definition
                 oval_def = oval.DefinitionType(version = 1.0, id = self.mappings.generate_def_id(), classxx = 'miscellaneous', metadata = self.metadata)
@@ -58,50 +57,40 @@ class maec_to_oval_processor(object):
 
     #Process an individual MAEC action
     def process_action(self, action):
-        if action.id is not None and action.type_ in self.supported_action_types:
+        if action.id_ is not None and action.name.value.split(' ')[0] in self.supported_action_types:
             converted = False
-            associated_objects = action.get_Associated_Objects()
-            if associated_objects is not None and len(associated_objects.Associated_Object) > 0:
-                for associated_object in associated_objects.Associated_Object:
-                    converted = (converted or self.process_associated_object(associated_object, action.id))
+            associated_objects = action.associated_objects
+            if associated_objects is not None and len(associated_objects) > 0:
+                for associated_object in associated_objects:
+                    converted = (converted or self.process_associated_object(associated_object, action.id_))
                 if converted:
-                    self.converted_ids.append(action.id)
+                    self.converted_ids.append(action.id_)
                 else:
-                    self.skipped_actions.append(action.id)
+                    self.skipped_actions.append(action.id_)
             else:
-                self.skipped_actions.append(action.id)
+                self.skipped_actions.append(action.id_)
         else:
-            self.skipped_actions.append(action.id)
+            self.skipped_actions.append(action.id_)
 
     #Process an individual behavior collection
     def process_behavior_collection(self, behavior_collection):
-        behavior_list = action_collection.get_Behavior_List()
-        if behavior_list.Behavior is not None and len(behavior_list.Behavior) > 0:
-            self.process_behavior(behavior_list.Behavior)
-        if behavor_list.Behavior_Collection is not None and len(behavor_list.Behavior_Collection) > 0:
-            for behavior_collection in behavor_list.Behavior_Collection:
-                self.process_behavior_collection(behavior_collection)
+        behavior_list = behavior_collection.behavior_list
+        if behavior_list is not None and len(behavior_list) > 0:
+            self.process_behavior(behavior_list)
 
     #Process an individual action collection
     def process_action_collection(self, action_collection):
-        action_list = action_collection.get_Action_List()
-        if action_list.Action is not None and len(action_list.Action) > 0:
-            self.process_actions(action_list.Action)
-        if action_list.Action_Collection is not None and len(action_list.Action_Collection) > 0:
-            for action_collection in action_list.Action_Collection:
-                self.process_action_collection(action_collection)
+        action_list = action_collection.action_list
+        if action_list is not None and len(action_list) > 0:
+            self.process_actions(action_list)
 
     #Process an individual MAEC behavior
     def process_behavior(self, behavior):
-        behavioral_actions = behavior.get_Actions()
+        behavioral_actions = behavior.action_list
         if behavioral_actions is not None:
-            #Handle any action collections that represent the behavior
-            if behavioral_actions.Action_Collection is not None and len(behavioral_actions.Action_Collection) > 0:
-                for action_collection in behavioral_actions.Action_Collection:
-                    self.process_action_collection(action_collection)
             #Handle any actions that represent the behavior
-            if behavioral_actions.Action is not None and len(behavioral_actions.Action) > 0:
-                self.process_actions(behavioral_actions.Action)
+            for action in behavioral_actions:
+                self.process_action(action)
 
     #Process any list of behaviors
     def process_behaviors(self, behaviors):
@@ -115,25 +104,25 @@ class maec_to_oval_processor(object):
 
     #Process the top-level collections
     def process_collections(self, collections):
-        if collections.Action_Collections is not None:
-            for action_collection in collections.Action_Collections.Action_Collection:
+        if collections.action_collections is not None:
+            for action_collection in collections.action_collections:
                 self.process_action_collection(action_collection)
-        if collections.Behavior_Collections is not None:
-            for behavior_collection in collections.Behavior_Collections.Behavior_Collection:
+        if collections.behavior_collections is not None:
+            for behavior_collection in collections.behavior_collections:
                 self.process_behavior_collection(behavior_collection)
 
     #Process the MAEC Bundle and extract any actions
     def process_bundle(self, maec_bundle):
         #Parse any behaviors in the root-level <behaviors> element
-        top_level_behaviors = maec_bundle.get_Behaviors()
-        if top_level_behaviors is not None and len(top_level_behaviors.behavior) > 0:
-            self.process_behaviors(top_level_behaviors.Behavior)
+        top_level_behaviors = maec_bundle.behaviors
+        if top_level_behaviors is not None:
+            self.process_behaviors(top_level_behaviors)
         #Parse any actions in the root-level <actions> element
-        top_level_actions = maec_bundle.get_Actions()
-        if top_level_actions is not None and len(top_level_actions.Action) > 0:
-            self.process_actions(top_level_actions.Action)
+        top_level_actions = maec_bundle.actions
+        if top_level_actions is not None and len(top_level_actions) > 0:
+            self.process_actions(top_level_actions)
         #Parse any action collections in the top-level <collections> element
-        top_level_collections = maec_bundle.get_Collections()
+        top_level_collections = maec_bundle.collections
         if top_level_collections is not None:
             self.process_collections(top_level_collections)
             
@@ -142,11 +131,13 @@ class maec_to_oval_processor(object):
         #Basic input file checking
         if os.path.isfile(self.infilename):    
             #Parse the MAEC file
-            maec_bundle = maec.parse(self.infilename)
+            maec_package = Package.from_xml(self.infilename)[0]
             try:
-                sys.stdout.write('Generating ' + self.outfilename + ' from ' + self.infilename + '...')
+                sys.stdout.write('Generating ' + self.outfilename + ' from ' + self.infilename + '...\n')
                 
-                self.process_bundle(maec_bundle)
+                for malware_subject in maec_package.malware_subjects:
+                    for maec_bundle in malware_subject.findings_bundles.bundles:
+                        self.process_bundle(maec_bundle)
 
                 #Build up the OVAL document from the parsed data and corresponding objects
                 self.__build_oval_document()
