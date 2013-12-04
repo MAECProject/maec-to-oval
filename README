@@ -41,8 +41,8 @@ This script was created using Python 2.7.x, and so may not be compatible with 3.
 --------------------------------------------------------------------------------
 --Methodology-------------------------------------------------------------------
 This script is still a POC, and supports the extraction of registry keys and files
-from the Actions in a MAEC Bundle that are defined as creating or modifying said
-object. E.g. the following action would be converted:
+from the Actions in a MAEC Package or Bundle XML document that are defined as 
+creating or modifying said object. E.g. the following Action would be converted:
 
 <maec:Action action_status="Success" id="maec-anubis_to_maec-act-1">
     <cybox:Name>create file</cybox:Name>
