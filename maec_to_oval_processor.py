@@ -28,13 +28,18 @@ class maec_to_oval_processor(object):
         self.outfilename = outfilename
         self.verbose_mode = verbose_mode
         self.stat_mode = stat_mode
+        self.current_bundle = None
 
     #Process an associated object and create the corresponding OVAL
-    def process_associated_object(self, associated_object, action_id):
+    def process_associated_object(self, associated_object, action_id, actual_object = None):
         #Only process 'affected' objects (those that were manipulated/instantiated as a result of the action)
         if associated_object.association_type is not None and associated_object.association_type.value in ['input', 'output', 'side-effect']:
-            
-            oval_entities = self.mappings.create_oval(associated_object._properties, action_id)
+            # Corner case for handling Objects passed in as a result of de-referencing
+            if actual_object:
+                object_properties = actual_object._properties
+            else:
+                object_properties = associated_object._properties
+            oval_entities = self.mappings.create_oval(object_properties, action_id)
             if oval_entities is not None:
                 #Create a new OVAL definition
                 oval_def = oval.DefinitionType(version = 1.0, id = self.mappings.generate_def_id(), classxx = 'miscellaneous', metadata = self.metadata)
@@ -69,7 +74,12 @@ class maec_to_oval_processor(object):
             associated_objects = action.associated_objects
             if associated_objects is not None and len(associated_objects) > 0:
                 for associated_object in associated_objects:
-                    converted = (converted or self.process_associated_object(associated_object, action.id_))
+                    # Dereference any Associated_Objects that are specified by IDREF
+                    if associated_object.idref:
+                        actual_object = self.current_bundle.get_object_by_id(associated_object.idref)
+                        converted = (converted or self.process_associated_object(associated_object, action.id_, actual_object))
+                    else:
+                        converted = (converted or self.process_associated_object(associated_object, action.id_))
                 if converted:
                     self.converted_ids.append(action.id_)
                 else:
@@ -120,6 +130,8 @@ class maec_to_oval_processor(object):
 
     #Process the MAEC Bundle and extract any actions
     def process_bundle(self, maec_bundle):
+        # Set the current bundle
+        self.current_bundle = maec_bundle
         #Parse any behaviors in the root-level <behaviors> element
         top_level_behaviors = maec_bundle.behaviors
         if top_level_behaviors is not None:
