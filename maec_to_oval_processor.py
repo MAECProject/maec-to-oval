@@ -1,5 +1,5 @@
 #MAEC -> OVAL Translator
-#v0.92 BETA
+#v0.93 BETA
 #Processor Class
 import oval57 as oval #bindings
 import cybox_oval_mappings
@@ -175,7 +175,7 @@ class maec_to_oval_processor(object):
         #Add the generator to the defs
         oval_gen = oval.GeneratorType()
         oval_gen.set_product_name('MAEC XML to OVAL Script')
-        oval_gen.set_product_version('0.92')
+        oval_gen.set_product_version('0.93')
         oval_gen.set_schema_version('5.7')
         #Generate the datetime
         oval_gen.set_timestamp(self.__generate_datetime())
