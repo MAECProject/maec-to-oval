@@ -58,6 +58,10 @@ class maec_to_oval_processor(object):
     #Process an individual MAEC action
     def process_action(self, action):
         if action.id_ is not None and action.name.value.split(' ')[0] in self.supported_action_types:
+            # Check the Action status - only successful or completed Actions should be converted
+            if action.action_status and (action.action_status not in ["Success", "Complete/Finish"]):
+                self.skipped_actions.append(action.id_)
+                return
             converted = False
             associated_objects = action.associated_objects
             if associated_objects is not None and len(associated_objects) > 0:
