@@ -7,7 +7,10 @@ import sys
 import os
 import traceback
 import datetime
+import maec.bindings.maec_bundle as bundle_binding
+import maec.bindings.maec_package as package_binding
 from maec.package.package import Package
+from maec.bundle.bundle import Bundle
 
 class maec_to_oval_processor(object):
     def __init__(self, infilename, outfilename, verbose_mode, stat_mode):
@@ -134,14 +137,20 @@ class maec_to_oval_processor(object):
     def generate_oval(self):
         #Basic input file checking
         if os.path.isfile(self.infilename):    
-            #Parse the MAEC file
-            maec_package = Package.from_xml(self.infilename)[0]
+            #Try parsing the MAEC file with both bindings
+            package_obj = package_binding.parse(self.infilename)
+            bundle_obj = bundle_binding.parse(self.infilename)
             try:
                 sys.stdout.write('Generating ' + self.outfilename + ' from ' + self.infilename + '...\n')
-                
-                for malware_subject in maec_package.malware_subjects:
-                    for maec_bundle in malware_subject.findings_bundles.bundles:
-                        self.process_bundle(maec_bundle)
+                #Test whether the input is a Package or Bundle and process accordingly
+                if bundle_obj.hasContent_():
+                    maec_bundle = Bundle.from_obj(bundle_obj)
+                    self.process_bundle(maec_bundle)
+                elif package_obj.hasContent_():
+                    maec_package = Package.from_obj(package_obj)
+                    for malware_subject in maec_package.malware_subjects:
+                        for maec_bundle in malware_subject.findings_bundles.bundles:
+                            self.process_bundle(maec_bundle)
 
                 #Build up the OVAL document from the parsed data and corresponding objects
                 self.__build_oval_document()
