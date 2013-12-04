@@ -19,9 +19,11 @@ class cybox_oval_mappings(object):
                                'LessThan':'less than','LessThanOrEqual':'less than or equal','FitsPattern':'pattern match',\
                                'BitwiseAnd':'bitwise and', 'BitwiseOr':'bitwise or'}
         #CybOX Object Type to OVAL object mappings
-        self.object_mappings = {'WinRegistryKeyObj:WindowsRegistryKeyObjectType':'registry_object', 'FileObj:FileObjectType':'file_object'}
+        self.object_mappings = {'WinRegistryKeyObj:WindowsRegistryKeyObjectType':'registry_object', 'FileObj:FileObjectType':'file_object',
+                                'WinFileObj:WindowsFileObjectType':'file_object', 'WinExecutableFileObj:WindowsExecutableFileObjectType':'file_object'}
         #CybOX FileObject to OVAL file_object mappings (CybOX element name : {OVAL element name, OVAL element datatype})
-        self.file_object_mappings = {'File_Path':{'name':'path','datatype':'string'},'Full_Path':{'name':'filepath','datatype':'string'}}
+        self.file_object_mappings = {'File_Path':{'name':'path','datatype':'string'},'Full_Path':{'name':'filepath','datatype':'string'},
+                                     'File_Name':{'name':'filename', 'datatype':'string'}}
         #CybOX FileObject to OVAL file_state mappings
         self.file_state_mappings = {'Size_In_Bytes':{'name':'size','datatype':'int'},'Accessed_Time':{'name':'a_time','datatype':'int'},\
                                     'Modified_Time':{'name':'m_time','datatype':'int'},'Created_Time':{'name':'c_time','datatype':'int'}}
@@ -63,10 +65,15 @@ class cybox_oval_mappings(object):
         oval_object.set_version(1)
         
         object_fields = cybox_defined_object._fields
-        
-        if "Full_Path" in object_fields and object_fields["Full_Path"] is not None:
-            del object_fields["File_Name"]
-            del object_fields["File_Path"]
+        # File Object related corner cases
+        if "File" in object_type:
+            if object_fields["Full_Path"]:
+                del object_fields["File_Name"]
+                del object_fields["File_Path"]
+            # Corner case where file_path is meant to be used as the full path to the file
+            if object_fields["File_Path"] and (not object_fields["Full_Path"] and not object_fields["File_Name"]):
+                object_fields["Full_Path"] = object_fields["File_Path"]
+                del object_fields["File_Path"] 
         
         for element, value in object_fields.items():
             if value is not None:
