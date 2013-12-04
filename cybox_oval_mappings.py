@@ -57,7 +57,6 @@ class cybox_oval_mappings(object):
     def create_oval_object(self, object_type, cybox_defined_object):
         oval_object_type = self.object_mappings.get(object_type)
         oval_object_mappings = self.object_mappings.get(object_type) + '_mappings'
-        print oval_object_type
         oval_object = getattr(oval,oval_object_type)()
         
         oval_object.set_id(self.generate_obj_id())
