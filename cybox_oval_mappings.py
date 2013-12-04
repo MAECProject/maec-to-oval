@@ -111,7 +111,6 @@ class cybox_oval_mappings(object):
         #Create the test
         comment = 'OVAL Test created from MAEC Action ' + reference
         oval_test = getattr(oval,oval_test_type)(id = self.generate_test_id(), check = 'at least one', version=1.0, comment = comment)
-        oval_test.set_id(self.generate_test_id())
         oval_test.set_object(oval.ObjectRefType(object_ref = oval_object.get_id()))
         if len(oval_states) > 0:
             for state in oval_states:
