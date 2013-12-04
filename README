@@ -15,7 +15,8 @@ For more information, please refer to the terms.txt file.
 #################################################################
 #MAEC XML --> OVAL XML Generation Script                        #
 #Generates OVAL 5.7 definitions/tests/objects from MAEC XML     #
-#                                                               #
+#Ivan Kirillov //MITRE                                          #
+#Andrew Sillers //MITRE                                         #
 #Compatible with content produced using MAEC v4.0.1/CybOX 2.0.1 #
 #v0.93 BETA - extracts files and registry keys                  #
 #12/04/2013                                                     #
