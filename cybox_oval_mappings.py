@@ -71,7 +71,7 @@ class cybox_oval_mappings(object):
                 del object_fields["File_Name"]
                 del object_fields["File_Path"]
             # Corner case where file_path is meant to be used as the full path to the file
-            if object_fields["File_Path"] and (not object_fields["Full_Path"] and not object_fields["File_Name"]):
+            elif object_fields["File_Path"] and (not object_fields["Full_Path"] and not object_fields["File_Name"]):
                 object_fields["Full_Path"] = object_fields["File_Path"]
                 del object_fields["File_Path"] 
         
