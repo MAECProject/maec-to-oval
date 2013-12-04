@@ -1,7 +1,7 @@
 #MAEC -> OVAL Translator
 #v0.93 BETA
 #Generates valid OVAL 5.7 XML output from MAEC v4.0.1 XML
-#Supports Windows files, registry keys, and processes
+#Supports Windows files and registry keys
 import maec_to_oval_processor as maec2oval
 import sys
     
@@ -43,7 +43,7 @@ def main():
         elif args[i] == '-s':
             stat_mode = True
 
-    processor = maec2oval. maec_to_oval_processor(infilename, outfilename, verbose_mode, stat_mode)
+    processor = maec2oval.maec_to_oval_processor(infilename, outfilename, verbose_mode, stat_mode)
     #Parse the input MAEC and generate the output OVAL
     processor.generate_oval()
         
