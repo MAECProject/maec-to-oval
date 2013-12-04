@@ -141,7 +141,7 @@ class maec_to_oval_processor(object):
             package_obj = package_binding.parse(self.infilename)
             bundle_obj = bundle_binding.parse(self.infilename)
             try:
-                sys.stdout.write('Generating ' + self.outfilename + ' from ' + self.infilename + '...\n')
+                sys.stdout.write('Generating ' + self.outfilename + ' from ' + self.infilename + '...')
                 #Test whether the input is a Package or Bundle and process accordingly
                 if bundle_obj.hasContent_():
                     maec_bundle = Bundle.from_obj(bundle_obj)
