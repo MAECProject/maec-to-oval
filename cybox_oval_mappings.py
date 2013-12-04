@@ -87,7 +87,7 @@ class cybox_oval_mappings(object):
         #Do some basic object sanity checking for certain objects
         if object_type == 'WinRegistryKeyObj:WindowsRegistryKeyObjectType' and (oval_object.hive is None or oval_object.key is None):
             return None
-        elif object_type == 'FileObj:FileObjectType' and (oval_object.filepath is None and (oval_object.path is None or oval_object.filename is None)):
+        elif 'FileObjectType' in object_type and (oval_object.filepath is None and (oval_object.path is None or oval_object.filename is None)):
             return None
         return oval_object
 
