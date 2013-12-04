@@ -1,6 +1,6 @@
 #MAEC -> OVAL Translator
-#v0.92 BETA
-#Generates valid OVAL 5.7 XML output from CybOX v1.0 XML
+#v0.93 BETA
+#Generates valid OVAL 5.7 XML output from MAEC v4.0.1 XML
 #Supports Windows files, registry keys, and processes
 import maec_to_oval_processor as maec2oval
 import sys
