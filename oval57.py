@@ -8120,7 +8120,7 @@ class EntityBaseType(GeneratedsSuper):
         self.exportAttributes(outfile, level, namespace_, name_='EntityBaseType')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
+            outfile.write(quote_xml(self.valueOf_).encode(ExternalEncoding))
             outfile.write('</%s%s>\n' % (namespace_, name_))
         else:
             outfile.write('/>\n')
