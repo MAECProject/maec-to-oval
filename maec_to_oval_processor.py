@@ -1,5 +1,5 @@
 #MAEC -> OVAL Translator
-#v0.93 BETA
+#v0.94 BETA
 #Processor Class
 import oval57 as oval #bindings
 import cybox_oval_mappings
@@ -39,25 +39,28 @@ class maec_to_oval_processor(object):
                 object_properties = actual_object._properties
             else:
                 object_properties = associated_object._properties
-            oval_entities = self.mappings.create_oval(object_properties, action_id)
-            if oval_entities is not None:
-                #Create a new OVAL definition
-                oval_def = oval.DefinitionType(version = 1.0, id = self.mappings.generate_def_id(), classxx = 'miscellaneous', metadata = self.metadata)
-                oval_criteria = oval.CriteriaType()
-                #Add the tests, objects, and states to the oval document
-                self.oval_tests.add_test(oval_entities.get('test'))
-                self.oval_objects.add_object(oval_entities.get('object'))
-                if oval_entities.has_key('state'):
-                    for oval_state in oval_entities.get('state'):
-                        self.oval_states.add_state(oval_state)
-                #Create the criterion and add it to the criteria
-                oval_criterion = oval.CriterionType(test_ref = oval_entities.get('test').id)
-                oval_criteria.add_criterion(oval_criterion)
-                if oval_criteria.hasContent_():
-                    oval_def.set_criteria(oval_criteria)
-                    self.oval_defs.add_definition(oval_def)
-                    return True
-                return False
+            if object_properties:
+                oval_entities = self.mappings.create_oval(object_properties, action_id)
+                if oval_entities is not None:
+                    #Create a new OVAL definition
+                    oval_def = oval.DefinitionType(version = 1.0, id = self.mappings.generate_def_id(), classxx = 'miscellaneous', metadata = self.metadata)
+                    oval_criteria = oval.CriteriaType()
+                    #Add the tests, objects, and states to the oval document
+                    self.oval_tests.add_test(oval_entities.get('test'))
+                    self.oval_objects.add_object(oval_entities.get('object'))
+                    if oval_entities.has_key('state'):
+                        for oval_state in oval_entities.get('state'):
+                            self.oval_states.add_state(oval_state)
+                    #Create the criterion and add it to the criteria
+                    oval_criterion = oval.CriterionType(test_ref = oval_entities.get('test').id)
+                    oval_criteria.add_criterion(oval_criterion)
+                    if oval_criteria.hasContent_():
+                        oval_def.set_criteria(oval_criteria)
+                        self.oval_defs.add_definition(oval_def)
+                        return True
+                    return False
+                else:
+                    return False
             else:
                 return False
         else:
@@ -200,7 +203,7 @@ class maec_to_oval_processor(object):
         #Add the generator to the defs
         oval_gen = oval.GeneratorType()
         oval_gen.set_product_name('MAEC XML to OVAL Script')
-        oval_gen.set_product_version('0.93')
+        oval_gen.set_product_version('0.94')
         oval_gen.set_schema_version('5.7')
         #Generate the datetime
         oval_gen.set_timestamp(self.__generate_datetime())

@@ -1,6 +1,6 @@
 #MAEC -> OVAL Translator
-#v0.93 BETA
-#Generates valid OVAL 5.7 XML output from MAEC v4.0.1 XML
+#v0.94 BETA
+#Generates valid OVAL 5.7 XML output from MAEC v4.1 XML
 #Supports Windows files and registry keys
 import maec_to_oval_processor as maec2oval
 import sys
@@ -12,7 +12,7 @@ def usage():
     
 USAGE_TEXT = """
 MAEC --> OVAL XML Converter Utility
-v0.93 BETA // Compatible with MAEC v4.0.1/CybOX 2.0.1 draft and OVAL 5.7
+v0.94 BETA // Compatible with MAEC v4.1/CybOX v2.1 and OVAL 5.7
 
 Usage: python maec_to_oval.py <flags> -i <cybox xml file> -o <oval xml file>
 

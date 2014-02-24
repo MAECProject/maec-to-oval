@@ -1,5 +1,5 @@
 #MAEC -> OVAL Translator
-#v0.92 BETA
+#v0.94 BETA
 #Generic mappings class
 #Generates OVAL tests/objects/states from a CybOX Defined Object
 
