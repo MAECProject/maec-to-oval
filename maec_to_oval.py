@@ -14,7 +14,7 @@ USAGE_TEXT = """
 MAEC --> OVAL XML Converter Utility
 v0.94 BETA // Compatible with MAEC v4.1/CybOX v2.1 and OVAL 5.7
 
-Usage: python maec_to_oval.py <flags> -i <cybox xml file> -o <oval xml file>
+Usage: python maec_to_oval.py <flags> -i <maec xml file> -o <oval xml file>
 
 Available Flags:
     -s: Statistics output mode. List out the Actions that were converted and skipped during the conversion
