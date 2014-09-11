@@ -10,7 +10,7 @@ BY USING THE MAEC TO OVAL SCRIPT, YOU SIGNIFY YOUR ACCEPTANCE OF THE TERMS AND
 CONDITIONS OF USE.  IF YOU DO NOT AGREE TO THESE TERMS, DO NOT USE THE MAEC TO OVAL 
 SCRIPT.
 
-For more information, please refer to the terms.txt file.
+For more information, please refer to the LICENSE.txt file.
 
 #################################################################
 #MAEC XML --> OVAL XML Generation Script                        #
@@ -65,7 +65,7 @@ maec_to_oval.py: the MAEC XML to OVAL XML Python driver.
 cybox_to_oval_processor.py: the main MAEC XML to OVAL XML converter class.
 maec_oval_mappings.py: the CybOX to OVAL mappings class.
 oval57.py: the OVAL 5.7 Python bindings used by the script.
-terms.txt: the terms of usage for this script.
+LICENSE.txt: the terms of usage for this script.
 
 --------------------------------------------------------------------------------
 --Usage Notes-------------------------------------------------------------------
