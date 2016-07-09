@@ -1,8 +1,8 @@
 ****************************************************
 
-      MAEC XML -> OVAL XML Converter Script
+MAEC XML -> OVAL XML Converter Script
 
- Copyright (c) 2012 - 2014 The MITRE Corporation
+Copyright (c) 2012 - 2014 The MITRE Corporation
 
 ****************************************************
 
@@ -13,21 +13,27 @@ SCRIPT.
 For more information, please refer to the LICENSE.txt file.
 
 #################################################################
-#MAEC XML --> OVAL XML Generation Script                        #
-#Generates OVAL 5.7 definitions/tests/objects from MAEC XML     #
-#                                                               #
-#Compatible with content produced using MAEC v4.1/CybOX 2.1     # 
-#v0.94 BETA - extracts files and registry keys                  #
-#2/24/2014                                                      #
-#                                                               #
+
+Malware Attribute Enumeration and Characterization (MAEC™) XML --> 
+Open Vulnerability and Assessment Language (OVAL®) XML Generation Script                       
+Generates OVAL 5.7 definitions/tests/objects from MAEC XML     
+                                                               
+Compatible with content produced using MAEC v4.1/Cyber Observable eXpression (CybOX™) 2.1      
+v0.94 BETA - extracts files and registry keys                  
+2/24/2014                                                      
+                                                              
 #################################################################
-# MAEC - http://maec.mitre.org #                                #
-# CybOX - http://cybox.mitre.org  #                             #
-# OVAL - http://oval.mitre.org  #                               #
+
+MAEC - https://maecproject.github.io/                                 
+CybOX - https://cyboxproject.github.io/                              
+OVAL - https://oval.cisecurity.org/
+
 #################################################################
 
 --------------------------------------------------------------------------------
---Installation Notes------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Installation Notes
 
 This software depends on the python-cybox and python-maec libraries:
 
@@ -37,10 +43,13 @@ python-maec >= 4.1.x.x and <= 4.2.x.x:  https://pypi.python.org/pypi/maec
 This script was created using Python 2.7.x, and so may not be compatible with 3.0.x.
 
 --------------------------------------------------------------------------------
---Methodology-------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Methodology
+
 This script is still a POC, and supports the extraction of registry keys and files
 from the Actions in a MAEC Package or Bundle XML document that are defined as 
-creating or modifying said object. E.g. the Object from the following Action 
+creating or modifying said object. E.g., the Object from the following Action 
 would be converted:
 
 <maec:Action action_status="Success" id="maec-anubis_to_maec-act-1">
@@ -59,7 +68,10 @@ This is all done in the Windows context and thus uses the corresponding OVAL
 constructs.
 
 --------------------------------------------------------------------------------
---Included Files----------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Included Files
+
 README: this file.
 maec_to_oval.py: the MAEC XML to OVAL XML Python driver.
 cybox_to_oval_processor.py: the main MAEC XML to OVAL XML converter class.
@@ -68,7 +80,9 @@ oval57.py: the OVAL 5.7 Python bindings used by the script.
 LICENSE.txt: the terms of usage for this script.
 
 --------------------------------------------------------------------------------
---Usage Notes-------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Usage Notes
 
 There are two main command line parameters for this script:
 
@@ -91,5 +105,26 @@ For example:
 python maec_to_oval.py -v -i <maec_xml_file> -o <oval_xml_file>
 
 For the latest version of the script, please check the MAEC GitHub Repository
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+About MAEC
+
+Malware Attribute Enumeration and Characterization (MAEC™) is a standardized language for sharing structured information about malware based upon attributes such as behaviors, artifacts, and attack patterns.
+
+The goal of the MAEC (pronounced "mike") effort is to provide a basis for transforming malware research and response. MAEC aims to eliminate the ambiguity and inaccuracy that currently exists in malware descriptions and to reduce reliance on signatures. In this way, MAEC seeks to improve human-to-human, human-to-tool, tool-to-tool, and tool-to-human communication about malware; reduce potential duplication of malware analysis efforts by researchers; and allow for the faster development of countermeasures by enabling the ability to leverage responses to previously observed malware instances. The MAEC Language enables correlation, integration, and automation.
+
+Please visit the MAEC website at https://maecproject.github.io/ for more information about the MAEC Language.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Getting Help
+
+Join the public MAEC Community Email Discussion List at https://maec.mitre.org/community/discussionlist.html.
+
+Email the MAEC Developers at maec@mitre.org.
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
